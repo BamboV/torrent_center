@@ -19,12 +19,12 @@ func NewServer(center Center) Server {
 }
 
 type trackerRequest struct {
-	name string
-	url string
+	Name string
+	Url string
 }
 
 type magnetRequest struct {
-	magnet string
+	Magnet string
 }
 
 func (s *Server) Start () {
@@ -39,13 +39,13 @@ func (s *Server) Start () {
 			reqParams := trackerRequest{}
 			err := decoder.Decode(&reqParams)
 
-			if err != nil || reqParams.name == "" || reqParams.url == "" {
+			if err != nil || reqParams.Name == "" || reqParams.Url == "" {
 				w.WriteHeader(400)
 				return
 			}
 			tracker := Tracker{
-				Name: reqParams.name,
-				Url: reqParams.url,
+				Name: reqParams.Name,
+				Url: reqParams.Url,
 			}
 			s.write(s.center.AddTracker(tracker), w)
 			break
@@ -65,13 +65,13 @@ func (s *Server) Start () {
 			reqParams := trackerRequest{}
 			err := decoder.Decode(&reqParams)
 
-			if err != nil || reqParams.name == "" || reqParams.url == "" {
+			if err != nil || reqParams.Name == "" || reqParams.Url == "" {
 				w.WriteHeader(400)
 				return
 			}
 			tracker := Tracker{
-				Name: reqParams.name,
-				Url: reqParams.url,
+				Name: reqParams.Name,
+				Url: reqParams.Url,
 			}
 			s.write(s.center.UpdateTracker(tracker), w)
 			break
@@ -128,12 +128,12 @@ func (s *Server) Start () {
 		reqParams := magnetRequest{}
 		err := decoder.Decode(&reqParams)
 
-		if err != nil || reqParams.magnet == "" {
+		if err != nil || reqParams.Magnet == "" {
 			w.WriteHeader(500)
 			return
 		}
 
-		if s.center.Download(reqParams.magnet) {
+		if s.center.Download(reqParams.Magnet) {
 			w.WriteHeader(200)
 		} else {
 			w.WriteHeader(500)
