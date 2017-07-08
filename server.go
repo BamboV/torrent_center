@@ -124,7 +124,11 @@ func (s *Server) Start () {
 		}
 	})
 
-	http.ListenAndServe(":80", mux)
+	err := http.ListenAndServe(":80", mux)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (s *Server) write(object interface{}, w http.ResponseWriter) {
