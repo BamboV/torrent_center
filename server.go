@@ -147,10 +147,6 @@ func (s *Server) Start () {
 	}
 }
 
-func (s *Server) decodeRequestBody () trackerRequest {
-
-}
-
 func (s *Server) write(object interface{}, w http.ResponseWriter) {
 	str, _ := json.Marshal(object)
 	w.Write(str)
