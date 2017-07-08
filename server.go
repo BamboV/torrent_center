@@ -18,6 +18,15 @@ func NewServer(center Center) Server {
 	}
 }
 
+type trackerRequest struct {
+	name string
+	url string
+}
+
+type magnetRequest struct {
+	magnet string
+}
+
 func (s *Server) Start () {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/trackers", func(w http.ResponseWriter, r *http.Request) {
@@ -26,15 +35,17 @@ func (s *Server) Start () {
 			s.write(s.center.GetTrackers(), w)
 			break
 		case http.MethodPost:
-			name := r.PostForm.Get("name")
-			url := r.PostForm.Get("url")
-			if name == "" || url == "" {
+			decoder := json.NewDecoder(r.Body)
+			reqParams := trackerRequest{}
+			err := decoder.Decode(reqParams)
+
+			if err != nil || reqParams.name == "" || reqParams.url == "" {
 				w.WriteHeader(400)
 				return
 			}
 			tracker := Tracker{
-				Name: name,
-				Url: url,
+				Name: reqParams.name,
+				Url: reqParams.url,
 			}
 			s.write(s.center.AddTracker(tracker), w)
 			break
@@ -50,15 +61,17 @@ func (s *Server) Start () {
 			s.center.DeleteTracker(Tracker{Name: name})
 			break
 		case http.MethodPut:
-			name := r.Form.Get("name")
-			url := r.Form.Get("url")
-			if name == "" || url == "" {
+			decoder := json.NewDecoder(r.Body)
+			reqParams := trackerRequest{}
+			err := decoder.Decode(reqParams)
+
+			if err != nil || reqParams.name == "" || reqParams.url == "" {
 				w.WriteHeader(400)
 				return
 			}
 			tracker := Tracker{
-				Name: name,
-				Url: url,
+				Name: reqParams.name,
+				Url: reqParams.url,
 			}
 			s.write(s.center.UpdateTracker(tracker), w)
 			break
@@ -111,13 +124,16 @@ func (s *Server) Start () {
 	})
 
 	mux.HandleFunc("/magnet", func(w http.ResponseWriter, r *http.Request) {
-		magnet := r.PostForm.Get("magnet")
-		if magnet == ""  {
+		decoder := json.NewDecoder(r.Body)
+		reqParams := magnetRequest{}
+		err := decoder.Decode(reqParams)
+
+		if err != nil || reqParams.magnet == "" {
 			w.WriteHeader(500)
 			return
 		}
 
-		if s.center.Download(magnet) {
+		if s.center.Download(reqParams.magnet) {
 			w.WriteHeader(200)
 		} else {
 			w.WriteHeader(500)
@@ -129,6 +145,10 @@ func (s *Server) Start () {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (s *Server) decodeRequestBody () trackerRequest {
+
 }
 
 func (s *Server) write(object interface{}, w http.ResponseWriter) {
