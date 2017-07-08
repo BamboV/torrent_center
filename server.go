@@ -37,7 +37,7 @@ func (s *Server) Start () {
 		case http.MethodPost:
 			decoder := json.NewDecoder(r.Body)
 			reqParams := trackerRequest{}
-			err := decoder.Decode(reqParams)
+			err := decoder.Decode(&reqParams)
 
 			if err != nil || reqParams.name == "" || reqParams.url == "" {
 				w.WriteHeader(400)
@@ -63,7 +63,7 @@ func (s *Server) Start () {
 		case http.MethodPut:
 			decoder := json.NewDecoder(r.Body)
 			reqParams := trackerRequest{}
-			err := decoder.Decode(reqParams)
+			err := decoder.Decode(&reqParams)
 
 			if err != nil || reqParams.name == "" || reqParams.url == "" {
 				w.WriteHeader(400)
@@ -126,7 +126,7 @@ func (s *Server) Start () {
 	mux.HandleFunc("/magnet", func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		reqParams := magnetRequest{}
-		err := decoder.Decode(reqParams)
+		err := decoder.Decode(&reqParams)
 
 		if err != nil || reqParams.magnet == "" {
 			w.WriteHeader(500)
