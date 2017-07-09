@@ -18,11 +18,6 @@ func NewServer(center Center) Server {
 	}
 }
 
-type trackerRequest struct {
-	Name string
-	Url string
-}
-
 type magnetRequest struct {
 	Magnet string
 }
@@ -36,23 +31,22 @@ func (s *Server) Start () {
 			break
 		case http.MethodPost:
 			decoder := json.NewDecoder(r.Body)
-			reqParams := trackerRequest{}
-			err := decoder.Decode(&reqParams)
 
-			if err != nil || reqParams.Name == "" || reqParams.Url == "" {
+			tracker := Tracker{}
+			err := decoder.Decode(&tracker)
+
+			if err != nil || tracker.Name == "" || tracker.Url == "" {
 				w.WriteHeader(400)
 				return
 			}
-			tracker := Tracker{
-				Name: reqParams.Name,
-				Url: reqParams.Url,
-			}
+
 			s.write(s.center.AddTracker(tracker), w)
 			break
 		}
 	})
 	mux.HandleFunc("/trackers/", func(w http.ResponseWriter, r *http.Request) {
-		name := strings.Trim(r.URL.Path, "/trackers/")
+		name := strings.Split(r.URL.Path, "/")[2]
+
 		switch r.Method {
 		case http.MethodGet:
 			s.write(s.center.GetTracker(name), w)
@@ -62,18 +56,17 @@ func (s *Server) Start () {
 			break
 		case http.MethodPut:
 			decoder := json.NewDecoder(r.Body)
-			reqParams := trackerRequest{}
-			err := decoder.Decode(&reqParams)
+			oldTracker := s.center.GetTracker(name)
 
-			if err != nil || reqParams.Name == "" || reqParams.Url == "" {
+			newTracker := Tracker{}
+			err := decoder.Decode(&newTracker)
+
+			if err != nil || newTracker.Name == "" || newTracker.Url == "" {
 				w.WriteHeader(400)
 				return
 			}
-			tracker := Tracker{
-				Name: reqParams.Name,
-				Url: reqParams.Url,
-			}
-			s.write(s.center.UpdateTracker(tracker), w)
+			oldTracker.Url = newTracker.Url
+			s.write(s.center.UpdateTracker(oldTracker), w)
 			break
 		}
 	})
@@ -90,13 +83,9 @@ func (s *Server) Start () {
 	})
 
 	mux.HandleFunc("/distributions/", func(w http.ResponseWriter, r *http.Request) {
-		params := strings.Trim(r.URL.Path, "/distributions/")
+		split := strings.Split(r.URL.Path, "/")
 
-
-		split := strings.Split(params, "/")
-
-		trackerName := split[0]
-
+		trackerName := split[2]
 		tracker := s.center.GetTracker(trackerName)
 
 		if tracker.Url == "" {
@@ -104,8 +93,8 @@ func (s *Server) Start () {
 			return
 		}
 
-		if len(split) > 1 {
-			id, err := strconv.Atoi(split[1])
+		if len(split) > 3 {
+			id, err := strconv.Atoi(split[3])
 
 			if err != nil {
 				w.WriteHeader(400)

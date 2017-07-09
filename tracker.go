@@ -7,8 +7,8 @@ import (
 
 type Tracker struct {
 	client client.TrackerClient `gorm:"-"`
-	Name string `gorm:"primary_key"`
-	Url string
+	Name string `gorm:"primary_key" json:"name"`
+	Url string `json:"url"`
 }
 
 func (t *Tracker) Get(id int) torrent.Distribution{

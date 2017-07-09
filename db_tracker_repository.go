@@ -36,8 +36,7 @@ func (r DBTrackerRepository) CreateTracker(t Tracker) Tracker {
 }
 
 func (r DBTrackerRepository) UpdateTracker(t Tracker) Tracker {
-	r.db.Update(&t)
-
+	r.db.Save(&t)
 	return t
 }
 
