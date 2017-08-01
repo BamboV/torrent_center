@@ -19,7 +19,7 @@ func NewServer(center Center) Server {
 }
 
 type magnetRequest struct {
-	Magnet string
+	Magnet string `json:"magnet"`
 }
 
 func (s *Server) Start () {
