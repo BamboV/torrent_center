@@ -17,7 +17,7 @@ type CenterClient struct {
 }
 
 type magnetType struct {
-	magnet string
+	Magnet string `json:"magnet"`
 }
 
 func (c *CenterClient) GetDistribution(trackerName string, id int) (*torrent.Distribution, error) {
@@ -150,14 +150,13 @@ func (c *CenterClient) UpdateTracker(tracker torrent_center.Tracker) (*torrent_c
 }
 
 func (c *CenterClient) Download(magnet string) bool {
-	str, _ := json.Marshal(magnetType{magnet:magnet})
+	str, _ := json.Marshal(magnetType{Magnet:magnet})
 
 	resp, err := c.Client.Post(c.CenterURL + "/magnet", "application/json", bytes.NewBuffer(str))
 
 	if err != nil {
 		return false
 	}
-
 	return resp.StatusCode == 200
 }
 
